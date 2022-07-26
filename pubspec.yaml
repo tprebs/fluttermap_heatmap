@@ -1,0 +1,14 @@
+name: flutter_map_heatmap
+description: A heatmap plugin for flutter_map
+version: 0.0.1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_map: 0.14.0
+
+dev_dependencies:
+  flutter_lints: ^1.0.4
