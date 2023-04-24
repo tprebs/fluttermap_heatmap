@@ -2,6 +2,12 @@
 
 A Simple heatmap plugin written for for [flutter_map](https://github.com/fleaflet/flutter_map) package
 
+## example
+
+![](https://github.com/tprebs/fluttermap_heatmap/blob/main/images/example.png)
+
+A full example can be found under the example project.
+
 ## Usage
 
 Add [`flutter_map`](https://github.com/fleaflet/flutter_map) and `flutter_map_heatmap` to your pubspec:
@@ -42,10 +48,6 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
 
 `InMemoryHeatMapDataSource` is provided out of the box but its easy to implement your own datasource 
 provider by implementing `HeatMapDataSource`
-
-
-a full example can be found under the example project. 
-
 
 ## TODO
 - [ ] upgrade to flutter_map
