@@ -5,9 +5,9 @@ import 'package:flutter/material.dart' hide Image;
 @Deprecated("use AltBaseCirclePainter instead")
 class BaseCirclePainter extends CustomPainter {
   final double radius;
-  final double blurFactor;
+  final double? blurFactor;
 
-  BaseCirclePainter({this.radius, this.blurFactor});
+  BaseCirclePainter({required this.radius, this.blurFactor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -25,18 +25,16 @@ class BaseCirclePainter extends CustomPainter {
     // todo revisit the gradient stops
     // create radial gradient
     final gradient = const RadialGradient(
-      colors: [Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],
-      stops: [0, 1],
-      radius: 0.5,
-      focalRadius: 0.85
-    ).createShader(rect);
-
+            colors: [Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],
+            stops: [0, 1],
+            radius: 0.5,
+            focalRadius: 0.85)
+        .createShader(rect);
 
     circlePaint.shader = gradient;
 
     canvas.drawCircle(rect.center, radius, circlePaint);
     canvas.drawCircle(rect.center, radius, circlePaint);
-
   }
 
   @override

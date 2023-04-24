@@ -7,8 +7,7 @@ import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:flutter_map_heatmap/src/heatmap/bitmap.dart';
 
 class HeatMap {
-
-  HeatMap(this.options, this.width, this.height, this.data){
+  HeatMap(this.options, this.width, this.height, this.data) {
     _initColorPalette();
   }
 
@@ -17,7 +16,7 @@ class HeatMap {
   final double height;
   final List<DataPoint> data;
 
-  ByteData _palette;
+  late ByteData _palette;
   final Completer<Null> ready = Completer<Null>();
 
   /// Base Shapes used to represent each point
@@ -48,14 +47,14 @@ class HeatMap {
     canvas.drawRect(paletteRect, palettePaint);
     final picture = recorder.endRecording();
     var image = await picture.toImage(256, 1);
-    _palette = await image.toByteData();
+    _palette = (await image.toByteData())!;
     ready.complete();
   }
 
   Future<ui.Image> _getBaseShape() async {
     final radius = options.radius;
     if (_baseShapes.containsKey(radius)) {
-      return _baseShapes[radius];
+      return _baseShapes[radius]!;
     }
 
     final recorder = ui.PictureRecorder();
@@ -73,37 +72,37 @@ class HeatMap {
   _grayscaleHeatmap(ui.Image baseCircle) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    final painter =
-        GrayScaleHeatMapPainter(baseCircle: baseCircle, data: data ?? [], minOpacity: options.minOpacity);
-    painter.paint(canvas, Size(width+options.radius, height+options.radius));
+    final painter = GrayScaleHeatMapPainter(
+        baseCircle: baseCircle,
+        data: data,
+        minOpacity: options.minOpacity);
+    painter.paint(
+        canvas, Size(width + options.radius, height + options.radius));
 
     final picture = recorder.endRecording();
-    final image =
-        await picture.toImage(width.toInt(), height.toInt());
+    final image = await picture.toImage(width.toInt(), height.toInt());
     return image;
   }
 
   Future<Bitmap> _colorize(ui.Image image) async {
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-
-      for (var i = 0, len = byteData.lengthInBytes, j; i < len; i += 4) {
-        j = byteData.getUint8(i + 3) * 4;
-        if (i < 40) {}
-        if (j != null && j > 0) {
-          byteData.setUint8(i, _palette.getUint8(j));
-          byteData.setUint8(i + 1, _palette.getUint8(j + 1));
-          byteData.setUint8(i + 2, _palette.getUint8(j + 2));
-          byteData.setUint8(i + 3, byteData.getUint8(i + 3) + 255);
-        }
-        if (i < 40) {}
+    for (var i = 0, len = byteData!.lengthInBytes, j; i < len; i += 4) {
+      j = byteData.getUint8(i + 3) * 4;
+      if (i < 40) {}
+      if (j != null && j > 0) {
+        byteData.setUint8(i, _palette.getUint8(j));
+        byteData.setUint8(i + 1, _palette.getUint8(j + 1));
+        byteData.setUint8(i + 2, _palette.getUint8(j + 2));
+        byteData.setUint8(i + 3, byteData.getUint8(i + 3) + 255);
       }
+      if (i < 40) {}
+    }
 
-      final bitmap = Bitmap.fromHeadless(
-              image.width, image.height, byteData.buffer.asUint8List());
+    final bitmap = Bitmap.fromHeadless(
+        image.width, image.height, byteData.buffer.asUint8List());
 
-      return bitmap;
+    return bitmap;
   }
 
   Future<Uint8List> generate() async {

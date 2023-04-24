@@ -8,20 +8,24 @@ import 'package:flutter/material.dart' hide Image;
 class GrayScaleHeatMapPainter extends CustomPainter {
   double minOpacity = 0.3;
   final Image baseCircle;
-  double min;
-  double max;
+  double? min;
+  double? max;
   double buffer;
   final List<DataPoint> data;
 
   GrayScaleHeatMapPainter(
-      {this.baseCircle, this.buffer = 0, this.data, minOpacity = 0.5, this.min, this.max});
+      {required this.baseCircle,
+      this.buffer = 0,
+      required this.data,
+      minOpacity = 0.5,
+      this.min,
+      this.max});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (min == null || max == null) {
       min = 0;
       max = 2;
-
     }
 
     var pointPaint = Paint()..color = Colors.green;
@@ -31,14 +35,13 @@ class GrayScaleHeatMapPainter extends CustomPainter {
     final paint = Paint()..color = const Color.fromRGBO(0, 0, 0, 1);
 
     for (final point in data) {
-      final alpha = math.min(math.max(point.z / max, minOpacity ?? 0.05), 1.0);
+      final alpha = math.min(math.max(point.z / max!, minOpacity), 1.0);
 
       paint.color = Color.fromRGBO(0, 0, 0, alpha);
 
       canvas.drawImage(
           baseCircle, Offset(point.x + buffer, point.y + buffer), paint);
     }
-
   }
 
   @override
@@ -56,12 +59,13 @@ class DataPoint {
   DataPoint(this.x, this.y, this.z);
 
   factory DataPoint.fromOffset(Offset offset) {
-    return DataPoint(offset.dx, offset.dy, null);
+    return DataPoint(offset.dx, offset.dy, 1);
   }
 
   void merge(double x, double y, double intensity) {
+
     this.x = (x * intensity + this.x * z) / (intensity + z);
     this.y = (y * intensity + this.y * z) / (intensity + z);
-    z += intensity;
+    z = z + intensity;
   }
 }

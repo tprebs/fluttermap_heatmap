@@ -2,7 +2,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'dart:math' as math;
 import 'latlong.dart';
 
-
 import 'package:flutter_map/plugin_api.dart';
 
 abstract class HeatMapDataSource {
@@ -14,7 +13,7 @@ class InMemoryHeatMapDataSource extends HeatMapDataSource {
   final List<WeightedLatLng> data;
   final LatLngBounds bounds;
 
-  InMemoryHeatMapDataSource({this.data})
+  InMemoryHeatMapDataSource({required this.data})
       : bounds = LatLngBounds.fromPoints(data.map((e) => e.latLng).toList());
 
   ///Filters in memory data returning the data ungridded
@@ -38,13 +37,13 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
 
   final Map<double, List<WeightedLatLng>> _gridCache = {};
 
-  GriddedHeatMapDataSource({this.data, this.radius})
+  GriddedHeatMapDataSource({required this.data, required this.radius})
       : bounds = LatLngBounds.fromPoints(data.map((e) => e.latLng).toList());
 
   ///Filters in memory data returning the data ungridded
   @override
   List<WeightedLatLng> getData(LatLngBounds bounds, double z) {
-    if (data != null && data.isNotEmpty && bounds.isOverlapping(bounds) ) {
+    if (data != null && data.isNotEmpty && bounds.isOverlapping(bounds)) {
       var griddedData = _getGriddedData(z);
       if (griddedData == null || griddedData.isEmpty) {
         return [];
@@ -58,13 +57,13 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
 
   List<WeightedLatLng> _getGriddedData(double z) {
     if (_gridCache.containsKey(z)) {
-      return _gridCache[z];
+      return _gridCache[z]!;
     }
     var leftBound = crs.latLngToPoint(bounds.northWest, z);
 
     var rightBound = crs.latLngToPoint(bounds.southEast, z);
 
-    var size = Bounds(leftBound,rightBound).size;
+    var size = Bounds(leftBound, rightBound).size;
 
     final cellSize = radius / 2;
 
@@ -80,29 +79,29 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
     var localMin = 0.0;
     var localMax = 0.0;
     for (final point in data) {
-        var globalPixel = crs.latLngToPoint(point.latLng, z);
-        var pixel = CustomPoint(
-            globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
+      var globalPixel = crs.latLngToPoint(point.latLng, z);
+      var pixel =
+          CustomPoint(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
 
-        final x = ((pixel.x) ~/ cellSize) + 2;
-        final y = ((pixel.y) ~/ cellSize) + 2;
+      final x = ((pixel.x) ~/ cellSize) + 2;
+      final y = ((pixel.y) ~/ cellSize) + 2;
 
-        var alt = point.intensity ?? 1;
+      var alt = point.intensity ?? 1;
 
-        final k = alt * v;
+      final k = alt * v;
 
-        grid[y] = grid[y] ?? []
-          ..length = (size.y / cellSize).ceil() + 2;
-        var cell = grid[y][x];
+      grid[y] = grid[y] ?? []
+        ..length = (size.y / cellSize).ceil() + 2;
+      var cell = grid[y][x];
 
-        if (cell == null) {
-          grid[y][x] = WeightedLatLng(point.latLng, 1);
-          cell = grid[y][x];
-        } else {
-          cell.merge(point.latLng.longitude, point.latLng.latitude, 1);
-        }
-        localMax = math.max(cell.intensity, localMax);
-        localMin = math.min(cell.intensity, localMin);
+      if (cell == null) {
+        grid[y][x] = WeightedLatLng(point.latLng, 1);
+        cell = grid[y][x];
+      } else {
+        cell.merge(point.latLng.longitude, point.latLng.latitude, 1);
+      }
+      localMax = math.max(cell.intensity, localMax);
+      localMin = math.min(cell.intensity, localMin);
     }
 
     for (var i = 0, len = grid.length; i < len; i++) {

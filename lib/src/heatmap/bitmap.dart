@@ -5,8 +5,11 @@ import 'dart:ui' as ui;
 const int bitmapPixelLength = 4;
 const int rgba32HeaderSize = 122;
 
+
+
 /// Common BitMap functions for adding bitmap header information to raw RGBA data
 class Bitmap {
+
   Bitmap.fromHeadless(this.width, this.height, this.content);
 
   final int width;
@@ -38,8 +41,9 @@ class Bitmap {
     return header.headerIntList;
   }
 }
-
 class RGBA32BitmapHeader {
+  late Uint8List headerIntList;
+
   RGBA32BitmapHeader(this.contentSize, int width, int height) {
     headerIntList = Uint8List(fileLength);
 
@@ -70,8 +74,6 @@ class RGBA32BitmapHeader {
       contentIntList,
     );
   }
-
-  Uint8List headerIntList;
 
   int get fileLength => contentSize + rgba32HeaderSize;
 }
