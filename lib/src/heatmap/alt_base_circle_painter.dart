@@ -6,7 +6,7 @@ class AltBaseCirclePainter extends CustomPainter {
   final double radius;
   final double blurFactor;
 
-  AltBaseCirclePainter({this.radius, this.blurFactor = 15});
+  AltBaseCirclePainter({required this.radius, this.blurFactor = 15});
 
   @override
   void paint(Canvas canvas, Size size) {

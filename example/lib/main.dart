@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -84,19 +84,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final map = new FlutterMap(
       options: new MapOptions(center: new LatLng(57.8827, -6.0400), zoom: 8.0),
-      layers: [
-        new TileLayerOptions(
+      children: [
+        TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
-        new TileLayerOptions(
-            reset: _rebuildStream.stream,
-            backgroundColor: Colors.transparent,
-            opacity: 1,
-            tileSize: 256,
-            tileProvider: HeatMapTilesProvider(data,
-                heatMapOptions:
-                    HeatMapOptions(gradient: this.gradients[this.index]),
-                dataSource: InMemoryHeatMapDataSource(data: data))),
+        if (data.length > 0)
+          TileLayer(
+              reset: _rebuildStream.stream,
+              backgroundColor: Colors.transparent,
+              opacity: 1,
+              tileSize: 256,
+              tileProvider: HeatMapTilesProvider(data,
+                  heatMapOptions:
+                      HeatMapOptions(gradient: this.gradients[this.index]),
+                  dataSource: InMemoryHeatMapDataSource(data: data))),
       ],
     );
     return Scaffold(

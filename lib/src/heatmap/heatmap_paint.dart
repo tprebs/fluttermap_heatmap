@@ -12,7 +12,7 @@ class HeatMapPaint extends StatefulWidget {
   final List<DataPoint> data;
 
   const HeatMapPaint(
-      {Key key, this.options, this.width, this.height, this.data})
+      {Key? key, required this.options, required this.width, required this.height, required this.data})
       : super(key: key);
 
   @override
@@ -20,10 +20,10 @@ class HeatMapPaint extends StatefulWidget {
 }
 
 class _HeatMapPaintState extends State<HeatMapPaint> {
-  ByteData _palette;
-  ui.Image _baseImage;
-  ui.Image _heatmapImage;
-  Uint8List _heatmap;
+  late ByteData _palette;
+  late ui.Image _baseImage;
+  late ui.Image _heatmapImage;
+  late Uint8List _heatmap;
   final Completer<Null> ready = Completer<Null>();
 
   Future<Null> get onReady => ready.future;
@@ -81,20 +81,19 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
   }
 
   _colorize(ui.Image baseCircle) async {
-    if(ready.isCompleted) {
-
+    if (ready.isCompleted) {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       final painter = GrayScaleHeatMapPainter(
-          baseCircle: baseCircle, data: widget.data ?? []);
+          baseCircle: baseCircle, data: widget.data);
       painter.paint(canvas, Size(widget.width, widget.height));
       final image = await recorder
           .endRecording()
           .toImage(widget.width.toInt(), widget.height.toInt());
-      final byteData = await image.toByteData(
-          format: ui.ImageByteFormat.rawRgba);
+      final byteData =
+          await image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
-      for (var i = 0, len = byteData.lengthInBytes, j; i < len; i += 4) {
+      for (var i = 0, len = byteData!.lengthInBytes, j; i < len; i += 4) {
         j = byteData.getUint8(i + 3) * 4;
         if (i < 40) {}
         if (j != null && j > 0) {
@@ -107,10 +106,10 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
       }
 
       final headeredImage = await Bitmap.fromHeadless(
-          image.width, image.height, byteData.buffer.asUint8List())
+              image.width, image.height, byteData.buffer.asUint8List())
           .buildImage();
       final headered = Bitmap.fromHeadless(
-          image.width, image.height, byteData.buffer.asUint8List())
+              image.width, image.height, byteData.buffer.asUint8List())
           .buildHeaded();
 
       setState(() {
@@ -132,10 +131,7 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
       return Container();
     }
     return Stack(
-      children: [Positioned(
-        top: 0,
-          left: 0,
-          child: Image.memory(_heatmap))],
+      children: [Positioned(top: 0, left: 0, child: Image.memory(_heatmap))],
     );
   }
 }
@@ -160,7 +156,7 @@ class HeatMapPainter extends CustomPainter {
 class HeatMapState {
   final HeatMapOptions options;
 
-  StreamController<ui.Image> imageSink;
+  StreamController<ui.Image>? imageSink;
 
   HeatMapState(this.options) {
     imageSink = StreamController.broadcast();
