@@ -1,6 +1,6 @@
 # Flutter Map Heatmap plugin
 
-A Simple heatmap plugin written for for [flutter_map](https://github.com/fleaflet/flutter_map) package
+A Simple heatmap plugin written for for [flutter_map](https://github.com/fleaflet/flutter_map) package. This plugin has been extracted from a larger app and the configuration options are limited to what was required for that application.
 
 ## example
 
@@ -50,7 +50,8 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
 provider by implementing `HeatMapDataSource`
 
 ## TODO
-- [ ] upgrade to flutter_map
+- [ x ] upgrade to flutter_map
 - [ ] release to pub 
 - [ ] complete GriddedHeatMapDataSource for gridding the data
 - [ ] improve heatmaps at lower zoom levels by scaling the radius used during painting.
+- [ ] Revisit new flutter_map API as this may be implementable outside of TileLayers
