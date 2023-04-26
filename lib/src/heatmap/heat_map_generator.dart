@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
-import 'package:flutter_map_heatmap/src/heatmap/bitmap.dart';
 
 class HeatMap {
   HeatMap(this.options, this.width, this.height, this.data) {
@@ -17,12 +15,12 @@ class HeatMap {
   final List<DataPoint> data;
 
   late ByteData _palette;
-  final Completer<Null> ready = Completer<Null>();
+  final Completer<void> ready = Completer<void>();
 
   /// Base Shapes used to represent each point
   final Map<double, ui.Image> _baseShapes = {};
 
-  Future<Null> get onReady => ready.future;
+  Future<void> get onReady => ready.future;
 
   /// generates a 256 color palette used to colorize the heatmap
   _initColorPalette() async {
@@ -87,10 +85,10 @@ class HeatMap {
   Future<Bitmap> _colorize(ui.Image image) async {
     final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
-    for (var i = 0, len = byteData!.lengthInBytes, j; i < len; i += 4) {
+    for (var i = 0, len = byteData!.lengthInBytes, j = 0; i < len; i += 4) {
       j = byteData.getUint8(i + 3) * 4;
       if (i < 40) {}
-      if (j != null && j > 0) {
+      if (j > 0) {
         byteData.setUint8(i, _palette.getUint8(j));
         byteData.setUint8(i + 1, _palette.getUint8(j + 1));
         byteData.setUint8(i + 2, _palette.getUint8(j + 2));

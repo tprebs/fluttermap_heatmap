@@ -35,7 +35,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  StreamController<Null> _rebuildStream = StreamController.broadcast();
+  StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
   List<Map<double, MaterialColor>> gradients = [
     HeatMapOptions.defaultGradient,
@@ -88,16 +88,11 @@ class _MyHomePageState extends State<MyHomePage> {
         TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
-        if (data.length > 0)
-          TileLayer(
-              reset: _rebuildStream.stream,
-              backgroundColor: Colors.transparent,
-              opacity: 1,
-              tileSize: 256,
-              tileProvider: HeatMapTilesProvider(data,
-                  heatMapOptions:
-                      HeatMapOptions(gradient: this.gradients[this.index]),
-                  dataSource: InMemoryHeatMapDataSource(data: data))),
+        HeatMapLayer(
+          heatMapDataSource: InMemoryHeatMapDataSource(data: data),
+          heatMapOptions: HeatMapOptions(gradient: this.gradients[this.index]),
+          reset: _rebuildStream.stream,
+        )
       ],
     );
     return Scaffold(

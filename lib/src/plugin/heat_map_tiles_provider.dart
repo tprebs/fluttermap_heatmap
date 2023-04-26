@@ -1,4 +1,4 @@
-import 'heatmap_data_provider.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +8,14 @@ import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:latlong2/latlong.dart';
-import 'latlong.dart';
 
 class HeatMapTilesProvider extends TileProvider {
-  List<WeightedLatLng> data;
   HeatMapDataSource dataSource;
   HeatMapOptions heatMapOptions;
 
   late Map<double, List<DataPoint>> griddedData;
 
-  HeatMapTilesProvider(this.data, {required this.dataSource, required this.heatMapOptions});
+  HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions});
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayer options) {
@@ -45,9 +43,9 @@ class HeatMapTilesProvider extends TileProvider {
     var scale = coords.z / 22 * 1.22;
     final radius = 25 * scale;
     var size = options.tileSize;
-    final maxZoom = options.maxZoom ?? 20;
+    final maxZoom = options.maxZoom;
     final bounds = _bounds(coords, 1);
-    final points = dataSource.getData(bounds, zoom.toDouble()) ?? data;
+    final points = dataSource.getData(bounds, zoom.toDouble());
     final v = 1 / math.pow(2, math.max(0, math.min(maxZoom - zoom, 12)));
 
     final cellSize = radius / 2;
@@ -72,7 +70,7 @@ class HeatMapTilesProvider extends TileProvider {
         final x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
         final y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
 
-        var alt = point.intensity ?? 1;
+        var alt = point.intensity;
         final k = alt * v;
 
         grid[y] = grid[y]
@@ -141,9 +139,7 @@ class HeatMapImage extends ImageProvider<HeatMapImage> {
 
   Future<ui.Codec> _generate() async {
     var bytes = await generator.generate();
-    if (bytes == null) {
-      return Future<ui.Codec>.error('Failed to load heatmap tile');
-    }
+
     return await PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
