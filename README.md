@@ -33,14 +33,11 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
         new TileLayerOptions(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
-        new TileLayerOptions(
-            backgroundColor: Colors.transparent,
-            opacity: 1,
-            tileSize: 256,
-            tileProvider: HeatMapTilesProvider(data,
-                heatMapOptions: HeatMapOptions(
-                ),
-                dataSource: InMemoryHeatMapDataSource(data: data))),
+        HeatMapLayer(
+          heatMapDataSource: InMemoryHeatMapDataSource(data: data),
+          heatMapOptions: HeatMapOptions(),
+          reset: _rebuildStream.stream,
+        )
       ],
     );
   }
@@ -50,7 +47,5 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
 provider by implementing `HeatMapDataSource`
 
 ## TODO
-- [ ] upgrade to flutter_map
-- [ ] release to pub 
 - [ ] complete GriddedHeatMapDataSource for gridding the data
 - [ ] improve heatmaps at lower zoom levels by scaling the radius used during painting.
