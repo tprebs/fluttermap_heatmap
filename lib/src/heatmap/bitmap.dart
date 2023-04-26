@@ -6,7 +6,6 @@ const int bitmapPixelLength = 4;
 const int rgba32HeaderSize = 122;
 
 
-
 /// Common BitMap functions for adding bitmap header information to raw RGBA data
 class Bitmap {
 

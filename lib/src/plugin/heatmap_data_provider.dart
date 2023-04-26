@@ -20,7 +20,7 @@ class InMemoryHeatMapDataSource extends HeatMapDataSource {
   @override
   List<WeightedLatLng> getData(LatLngBounds bounds, double z) {
     if (bounds.isOverlapping(bounds)) {
-      if (data == null || data.isEmpty) {
+      if (data.isEmpty) {
         return [];
       }
       return data.where((point) => bounds.contains(point.latLng)).toList();
@@ -43,9 +43,9 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
   ///Filters in memory data returning the data ungridded
   @override
   List<WeightedLatLng> getData(LatLngBounds bounds, double z) {
-    if (data != null && data.isNotEmpty && bounds.isOverlapping(bounds)) {
+    if (data.isNotEmpty && bounds.isOverlapping(bounds)) {
       var griddedData = _getGriddedData(z);
-      if (griddedData == null || griddedData.isEmpty) {
+      if (griddedData.isEmpty) {
         return [];
       }
       return griddedData
@@ -69,7 +69,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
 
     final gridSize = size;
 
-    List<List<WeightedLatLng>> grid = []..length =
+    List<List<WeightedLatLng?>> grid = []..length =
         (size.y / cellSize).ceil() + 2;
 
     List<WeightedLatLng> griddedData = [];
@@ -86,11 +86,11 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
       final x = ((pixel.x) ~/ cellSize) + 2;
       final y = ((pixel.y) ~/ cellSize) + 2;
 
-      var alt = point.intensity ?? 1;
+      var alt = point.intensity;
 
       final k = alt * v;
 
-      grid[y] = grid[y] ?? []
+      grid[y] = grid[y]
         ..length = (size.y / cellSize).ceil() + 2;
       var cell = grid[y][x];
 
@@ -100,17 +100,15 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
       } else {
         cell.merge(point.latLng.longitude, point.latLng.latitude, 1);
       }
-      localMax = math.max(cell.intensity, localMax);
+      localMax = math.max(cell!.intensity, localMax);
       localMin = math.min(cell.intensity, localMin);
     }
 
     for (var i = 0, len = grid.length; i < len; i++) {
-      if (grid[i] != null) {
-        for (var j = 0, len2 = grid[i].length; j < len2; j++) {
-          var cell = grid[i][j];
-          if (cell != null) {
-            griddedData.add(cell);
-          }
+      for (var j = 0, len2 = grid[i].length; j < len2; j++) {
+        var cell = grid[i][j];
+        if (cell != null) {
+          griddedData.add(cell);
         }
       }
     }

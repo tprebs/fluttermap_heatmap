@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +23,9 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
   late ui.Image _baseImage;
   late ui.Image _heatmapImage;
   late Uint8List _heatmap;
-  final Completer<Null> ready = Completer<Null>();
+  final Completer<void> ready = Completer<void>();
 
-  Future<Null> get onReady => ready.future;
+  Future<void> get onReady => ready.future;
 
   @override
   initState() {
@@ -44,7 +43,7 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
       stops.add(entry.key);
     }
     Gradient colorGradient = LinearGradient(colors: colors, stops: stops);
-    var pallateRect = Rect.fromLTRB(0, 0, 256, 1);
+    var pallateRect = const Rect.fromLTRB(0, 0, 256, 1);
     var shader = colorGradient.createShader(pallateRect,
         textDirection: TextDirection.ltr);
     final recorder = ui.PictureRecorder();
@@ -93,10 +92,10 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
       final byteData =
           await image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
-      for (var i = 0, len = byteData!.lengthInBytes, j; i < len; i += 4) {
+      for (var i = 0, len = byteData!.lengthInBytes, j = 0; i < len; i += 4) {
         j = byteData.getUint8(i + 3) * 4;
         if (i < 40) {}
-        if (j != null && j > 0) {
+        if (j > 0) {
           byteData.setUint8(i, _palette.getUint8(j));
           byteData.setUint8(i + 1, _palette.getUint8(j + 1));
           byteData.setUint8(i + 2, _palette.getUint8(j + 2));
