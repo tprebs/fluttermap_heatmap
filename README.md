@@ -14,7 +14,7 @@ Add [`flutter_map`](https://github.com/fleaflet/flutter_map) and `flutter_map_he
 
 ```yaml
 dependencies:
-  flutter_map: 0.14.0
+  flutter_map: 3.1.0
   flutter_map_heatmap: any # or the latest version on Pub
 ```
 
