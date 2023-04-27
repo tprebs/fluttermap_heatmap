@@ -30,7 +30,7 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
           zoom: 8.0
       ),
       layers: [
-        new TileLayerOptions(
+        new TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
         new TileLayerOptions(
