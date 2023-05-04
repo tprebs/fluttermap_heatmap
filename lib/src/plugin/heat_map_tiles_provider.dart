@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +14,16 @@ class HeatMapTilesProvider extends TileProvider {
 
   late Map<double, List<DataPoint>> griddedData;
 
-  HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions});
+  HeatMapTilesProvider(
+      {required this.dataSource, required this.heatMapOptions});
 
   @override
   ImageProvider getImage(TileCoordinates coords, TileLayer options) {
     var tileSize = options.tileSize;
 
-    List<DataPoint> filteredData = _filterData(coords, options);
+    // disable zoom level 0 for now. ned to refactor _filterData
+    List<DataPoint> filteredData =
+        coords.z != 0 ? _filterData(coords, options) : [];
     var scale = coords.z / 22 * 1.22;
     final radius = 25 * scale;
     var imageHMOptions = HeatMapOptions(
@@ -53,9 +55,9 @@ class HeatMapTilesProvider extends TileProvider {
     final gridOffset = size;
     final gridSize = size + gridOffset;
 
-    var gridLength =   (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
-    List<List<DataPoint?>> grid = List<List<DataPoint?>>.filled(gridLength, [], growable: true);
-
+    var gridLength = (gridSize / cellSize).ceil() + 2 + gridOffset.ceil();
+    List<List<DataPoint?>> grid =
+        List<List<DataPoint?>>.filled(gridLength, [], growable: true);
 
     const crs = Epsg3857();
 
@@ -65,7 +67,8 @@ class HeatMapTilesProvider extends TileProvider {
         CustomPoint(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final point in points) {
       if (bounds.contains(point.latLng)) {
-        var pixel = crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
+        var pixel =
+            crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
 
         final x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
         final y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
@@ -113,7 +116,9 @@ class HeatMapTilesProvider extends TileProvider {
     var latRad = math.atan(_sinh(math.pi * (1 - 2 * yBounded / n)));
     var latDeg = latRad * 180 / math.pi;
     //keep the point in the world
-    return latDeg > 0 ? math.min(latDeg, 90).toDouble() : math.max(latDeg, -90).toDouble();
+    return latDeg > 0
+        ? math.min(latDeg, 90).toDouble()
+        : math.max(latDeg, -90).toDouble();
   }
 
   /// converts the tile x to longitude. if the longitude is out of range then it is adjusted to the
@@ -121,7 +126,9 @@ class HeatMapTilesProvider extends TileProvider {
   double tile2Lon(num x, num z) {
     var xBounded = math.max(x, 0);
     var lonDeg = xBounded / math.pow(2.0, z) * 360 - 180;
-    return lonDeg > 0 ? math.min(lonDeg, 180).toDouble() : math.max(lonDeg, -180).toDouble();
+    return lonDeg > 0
+        ? math.min(lonDeg, 180).toDouble()
+        : math.max(lonDeg, -180).toDouble();
   }
 }
 
