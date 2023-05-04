@@ -56,13 +56,15 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
 
   @override
   Widget build(BuildContext context) {
-    return TileLayer(
-        backgroundColor: Colors.transparent,
-        opacity: 1,
-        tileSize: 256,
-        urlTemplate: pseudoUrl,
-        tileProvider: HeatMapTilesProvider(
-            heatMapOptions: widget.heatMapOptions,
-            dataSource: widget.heatMapDataSource));
+    return Opacity(
+      opacity: 1,
+      child: TileLayer(
+          backgroundColor: Colors.transparent,
+          tileSize: 256,
+          urlTemplate: pseudoUrl,
+          tileProvider: HeatMapTilesProvider(
+              heatMapOptions: widget.heatMapOptions,
+              dataSource: widget.heatMapDataSource)),
+    );
   }
 }

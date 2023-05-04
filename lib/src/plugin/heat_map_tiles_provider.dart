@@ -18,7 +18,7 @@ class HeatMapTilesProvider extends TileProvider {
   HeatMapTilesProvider({required this.dataSource, required this.heatMapOptions});
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) {
+  ImageProvider getImage(TileCoordinates coords, TileLayer options) {
     var tileSize = options.tileSize;
 
     List<DataPoint> filteredData = _filterData(coords, options);
@@ -37,7 +37,7 @@ class HeatMapTilesProvider extends TileProvider {
     return (math.exp(angle) - math.exp(-angle)) / 2;
   }
 
-  _filterData(Coords<num> coords, TileLayer options) {
+  _filterData(TileCoordinates coords, TileLayer options) {
     List<DataPoint> filteredData = [];
     final zoom = coords.z;
     var scale = coords.z / 22 * 1.22;
@@ -97,7 +97,7 @@ class HeatMapTilesProvider extends TileProvider {
 
   /// extract bounds from tile coordinates. An optional [buffer] can be passed to expand the bounds
   /// to include a buffer. eg. a buffer of 0.5 would add a half tile buffer to all sides of the bounds.
-  LatLngBounds _bounds(Coords<num> coords, [double buffer = 0]) {
+  LatLngBounds _bounds(TileCoordinates coords, [double buffer = 0]) {
     var sw = LatLng(tile2Lat(coords.y + 1 + buffer, coords.z),
         tile2Lon(coords.x - buffer, coords.z));
     var ne = LatLng(tile2Lat(coords.y - buffer, coords.z),
@@ -107,21 +107,21 @@ class HeatMapTilesProvider extends TileProvider {
 
   /// converts tile y to latitude. if the latitude is out of range it is adjusted to the min/max
   /// latitude (-90,90)
-  tile2Lat(num y, num z) {
+  double tile2Lat(num y, num z) {
     var yBounded = math.max(y, 0);
     var n = math.pow(2.0, z);
     var latRad = math.atan(_sinh(math.pi * (1 - 2 * yBounded / n)));
     var latDeg = latRad * 180 / math.pi;
     //keep the point in the world
-    return latDeg > 0 ? math.min(latDeg, 90) : math.max(latDeg, -90);
+    return latDeg > 0 ? math.min(latDeg, 90).toDouble() : math.max(latDeg, -90).toDouble();
   }
 
   /// converts the tile x to longitude. if the longitude is out of range then it is adjusted to the
   /// min/max longitude (-180/180)
-  tile2Lon(num x, num z) {
+  double tile2Lon(num x, num z) {
     var xBounded = math.max(x, 0);
     var lonDeg = xBounded / math.pow(2.0, z) * 360 - 180;
-    return lonDeg > 0 ? math.min(lonDeg, 180) : math.max(lonDeg, -180);
+    return lonDeg > 0 ? math.min(lonDeg, 180).toDouble() : math.max(lonDeg, -180).toDouble();
   }
 }
 
