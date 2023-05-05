@@ -146,8 +146,8 @@ class HeatMapImage extends ImageProvider<HeatMapImage> {
 
   Future<ui.Codec> _generate() async {
     var bytes = await generator.generate();
-
-    return await PaintingBinding.instance.instantiateImageCodec(bytes);
+    var buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+    return PaintingBinding.instance.instantiateImageCodecFromBuffer(buffer);
   }
 
   @override
