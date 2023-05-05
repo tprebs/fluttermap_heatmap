@@ -57,7 +57,7 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: 1,
+      opacity: widget.heatMapOptions.layerOpacity,
       child: TileLayer(
           backgroundColor: Colors.transparent,
           tileSize: 256,

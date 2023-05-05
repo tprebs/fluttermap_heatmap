@@ -25,7 +25,7 @@ class HeatMapTilesProvider extends TileProvider {
     List<DataPoint> filteredData =
         coords.z != 0 ? _filterData(coords, options) : [];
     var scale = coords.z / 22 * 1.22;
-    final radius = 25 * scale;
+    final radius = heatMapOptions.radius * scale;
     var imageHMOptions = HeatMapOptions(
       radius: radius,
       minOpacity: heatMapOptions.minOpacity,
@@ -87,7 +87,7 @@ class HeatMapTilesProvider extends TileProvider {
           cell.merge(pixel.x - radius, pixel.y - radius, k);
         }
         localMax = math.max(cell!.z, localMax);
-        localMin = math.min(cell!.z, localMin);
+        localMin = math.min(cell.z, localMin);
 
         if (bounds.contains(point.latLng)) {
           filteredData.add(DataPoint(pixel.x - radius, pixel.y - radius, k));

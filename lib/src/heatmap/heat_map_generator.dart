@@ -57,7 +57,7 @@ class HeatMap {
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    final baseCirclePainter = AltBaseCirclePainter(radius: radius);
+    final baseCirclePainter = AltBaseCirclePainter(radius: radius, blurFactor: options.blurFactor);
     Size size = Size.fromRadius(radius);
     baseCirclePainter.paint(canvas, size);
     final picture = recorder.endRecording();

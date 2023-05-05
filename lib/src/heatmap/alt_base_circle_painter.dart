@@ -2,10 +2,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart' hide Image;
 
 class AltBaseCirclePainter extends CustomPainter {
+
+  /// radius of the circle to be painted
   final double radius;
+  /// radius of the gradient applied to the painted circle
   final double blurFactor;
 
-  AltBaseCirclePainter({required this.radius, this.blurFactor = 15});
+  AltBaseCirclePainter({required this.radius, this.blurFactor = 0.5});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -16,19 +19,15 @@ class AltBaseCirclePainter extends CustomPainter {
     final rect = Rect.fromPoints(Offset(_width / 2 - r2, _height / 2 - r2),
         Offset(_width / 2 + r2, _height / 2 + r2));
 
-    var pointPaint = Paint()..color = Colors.green;
+    var pointPaint = Paint()..color = Colors.black;
 
     pointPaint.strokeWidth = 4;
 
-    final circlePaint = Paint();
-
-    final gradient = const RadialGradient(
-      colors: [Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],
-      stops: [0, 1],
-      radius: 0.5,
-    ).createShader(rect);
-
-    circlePaint.shader = gradient;
+    final gradient = RadialGradient(
+            colors: const [Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],
+            stops: const [0, 1],
+            radius: blurFactor)
+        .createShader(rect);
 
     canvas.drawPath(
         Path()
