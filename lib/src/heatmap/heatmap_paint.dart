@@ -11,7 +11,11 @@ class HeatMapPaint extends StatefulWidget {
   final List<DataPoint> data;
 
   const HeatMapPaint(
-      {Key? key, required this.options, required this.width, required this.height, required this.data})
+      {Key? key,
+      required this.options,
+      required this.width,
+      required this.height,
+      required this.data})
       : super(key: key);
 
   @override
@@ -53,9 +57,6 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
     final picture = recorder.endRecording();
     var image = await picture.toImage(256, 1);
     return await image.toByteData();
-//    setState(() {
-//      _palette = palette;
-//    });
   }
 
   // initialize the palette and image
@@ -70,12 +71,10 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
     baseCirclePainter.paint(canvas, size);
     final picture = recorder.endRecording();
     final image = await picture.toImage(radius.round() * 2, radius.round() * 2);
-//    await _colorize(image);
     setState(() {
       _palette = colorPalette;
       _baseImage = image;
       ready.complete();
-//      print('setImage');
     });
   }
 
@@ -83,8 +82,8 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
     if (ready.isCompleted) {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
-      final painter = GrayScaleHeatMapPainter(
-          baseCircle: baseCircle, data: widget.data);
+      final painter =
+          GrayScaleHeatMapPainter(baseCircle: baseCircle, data: widget.data);
       painter.paint(canvas, Size(widget.width, widget.height));
       final image = await recorder
           .endRecording()
@@ -126,9 +125,6 @@ class _HeatMapPaintState extends State<HeatMapPaint> {
 
   @override
   Widget build(BuildContext context) {
-    if (_heatmapImage == null || _palette == null || _baseImage == null) {
-      return Container();
-    }
     return Stack(
       children: [Positioned(top: 0, left: 0, child: Image.memory(_heatmap))],
     );

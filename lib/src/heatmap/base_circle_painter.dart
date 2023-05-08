@@ -21,7 +21,6 @@ class BaseCirclePainter extends CustomPainter {
     final rect = Rect.fromCircle(
         center: Offset(_width / 2, _height / 2), radius: radius);
 
-    // todo revisit the gradient stops
     // create radial gradient
     final gradient = const RadialGradient(
             colors: [Color.fromRGBO(0, 0, 0, 1), Color.fromRGBO(0, 0, 0, 0)],

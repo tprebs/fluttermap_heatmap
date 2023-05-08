@@ -88,9 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
         TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
-        HeatMapLayer(
+        if (data.isNotEmpty) HeatMapLayer(
           heatMapDataSource: InMemoryHeatMapDataSource(data: data),
-          heatMapOptions: HeatMapOptions(gradient: this.gradients[this.index]),
+          heatMapOptions: HeatMapOptions(gradient: this.gradients[this.index],
+          minOpacity: 0.1),
           reset: _rebuildStream.stream,
         )
       ],

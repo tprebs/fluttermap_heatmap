@@ -1,4 +1,3 @@
-import 'package:flutter_map/flutter_map.dart';
 import 'dart:math' as math;
 import 'latlong.dart';
 
