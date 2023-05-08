@@ -1,3 +1,5 @@
+[![Pub.dev](https://img.shields.io/pub/v/flutter_map_heatmap.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map_heatmap)
+
 # Flutter Map Heatmap plugin
 
 A Simple heatmap plugin written for for [flutter_map](https://github.com/fleaflet/flutter_map) package.
