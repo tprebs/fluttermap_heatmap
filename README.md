@@ -42,7 +42,9 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
     );
   }
 ```
-See the ['full example'](blob/main/example/lib/main.dart)
+
+See the ['full example'](example/lib/main.dart)
+
 `InMemoryHeatMapDataSource` is provided out of the box but its easy to implement your own datasource 
 provider by implementing `HeatMapDataSource`
 
