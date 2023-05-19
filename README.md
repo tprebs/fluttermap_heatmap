@@ -16,7 +16,7 @@ Add [`flutter_map`](https://github.com/fleaflet/flutter_map) and `flutter_map_he
 
 ```yaml
 dependencies:
-  flutter_map: 3.1.0
+  flutter_map: 4.0.0
   flutter_map_heatmap: any # or the latest version on Pub
 ```
 
@@ -27,24 +27,22 @@ Add it in your FlutterMap and configure it using `HeatMapOptions`.
 ```dart
   Widget build(BuildContext context) {
     return FlutterMap(
-      options: new MapOptions(
-          center: new LatLng(57.8827, -6.0400),
-          zoom: 8.0
-      ),
-      layers: [
-        new TileLayer(
+      options: new MapOptions(center: new LatLng(57.8827, -6.0400), zoom: 8.0),
+      children: [
+        TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c']),
-        HeatMapLayer(
+        if (data.isNotEmpty) HeatMapLayer(
           heatMapDataSource: InMemoryHeatMapDataSource(data: data),
-          heatMapOptions: HeatMapOptions(),
+          heatMapOptions: HeatMapOptions(gradient: this.gradients[this.index],
+          minOpacity: 0.1),
           reset: _rebuildStream.stream,
         )
       ],
     );
   }
 ```
-
+See the ['full example'](blob/main/example/lib/main.dart)
 `InMemoryHeatMapDataSource` is provided out of the box but its easy to implement your own datasource 
 provider by implementing `HeatMapDataSource`
 
