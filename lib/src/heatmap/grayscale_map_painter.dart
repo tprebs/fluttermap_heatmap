@@ -28,10 +28,6 @@ class GrayScaleHeatMapPainter extends CustomPainter {
       max = 2;
     }
 
-    var pointPaint = Paint()..color = Colors.green;
-
-    pointPaint.strokeWidth = 4;
-
     final paint = Paint()..color = const Color.fromRGBO(0, 0, 0, 1);
 
     for (final point in data) {
