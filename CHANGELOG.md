@@ -11,3 +11,6 @@
 * configurable layer opacity (default 75%)
 * configurable blur factor
 * configurable point radius
+
+[0.0.4] - 2023/07/12
+* (web) empty heatmap tiles are now transparent not black
