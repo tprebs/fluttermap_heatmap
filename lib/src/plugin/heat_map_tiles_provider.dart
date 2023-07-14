@@ -81,16 +81,16 @@ class HeatMapTilesProvider extends TileProvider {
         var cell = grid[y][x];
 
         if (cell == null) {
-          grid[y][x] = DataPoint(pixel.x - radius, pixel.y - radius, k);
+          grid[y][x] = DataPoint(pixel.x, pixel.y, k);
           cell = grid[y][x];
         } else {
-          cell.merge(pixel.x - radius, pixel.y - radius, k);
+          cell.merge(pixel.x, pixel.y, k);
         }
         localMax = math.max(cell!.z, localMax);
         localMin = math.min(cell.z, localMin);
 
         if (bounds.contains(point.latLng)) {
-          filteredData.add(DataPoint(pixel.x - radius, pixel.y - radius, k));
+          filteredData.add(DataPoint(pixel.x, pixel.y, k));
         }
       }
     }

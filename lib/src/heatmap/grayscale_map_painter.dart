@@ -30,13 +30,18 @@ class GrayScaleHeatMapPainter extends CustomPainter {
 
     final paint = Paint()..color = const Color.fromRGBO(0, 0, 0, 1);
 
+    // offsets for centering the baseCircle when painting
+    final yOffset = baseCircle.height / 2;
+    final xOffset = baseCircle.width / 2;
     for (final point in data) {
       final alpha = math.min(math.max(point.z / max!, minOpacity), 1.0);
 
       paint.color = Color.fromRGBO(0, 0, 0, alpha);
 
       canvas.drawImage(
-          baseCircle, Offset(point.x + buffer, point.y + buffer), paint);
+          baseCircle,
+          Offset(point.x + buffer - xOffset, point.y + buffer - yOffset),
+          paint);
     }
   }
 
@@ -59,7 +64,6 @@ class DataPoint {
   }
 
   void merge(double x, double y, double intensity) {
-
     this.x = (x * intensity + this.x * z) / (intensity + z);
     this.y = (y * intensity + this.y * z) / (intensity + z);
     z = z + intensity;
