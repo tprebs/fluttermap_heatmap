@@ -1,7 +1,7 @@
 name: flutter_map_heatmap
 description: A heatmap plugin for flutter_map
 repository: https://github.com/tprebs/fluttermap_heatmap
-version: 0.0.4
+version: 0.0.4+1
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
