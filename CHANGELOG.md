@@ -17,3 +17,6 @@
 
 [0.0.4+1] - 2023/07/14
 * correct offset when rendering each heatmap point, centering the heatmap image on the point
+
+[0.0.4+2] - 2023/08/02
+* add tileDisplay to override default tile provider behaviour
