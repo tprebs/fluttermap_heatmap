@@ -9,6 +9,7 @@ class HeatMapLayer extends StatefulWidget {
   final HeatMapDataSource heatMapDataSource;
   final Stream<void>? reset;
   final TileDisplay tileDisplay;
+  final double maxZoom;
 
   HeatMapLayer(
       {super.key,
@@ -16,7 +17,8 @@ class HeatMapLayer extends StatefulWidget {
       required this.heatMapDataSource,
       List<WeightedLatLng>? initialData,
       this.reset,
-      this.tileDisplay = const TileDisplay.fadeIn()})
+      this.tileDisplay = const TileDisplay.fadeIn(),
+      this.maxZoom = 18.0})
       : heatMapOptions = heatMapOptions ?? HeatMapOptions();
 
   @override
@@ -63,6 +65,7 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
       child: TileLayer(
           backgroundColor: Colors.transparent,
           tileSize: 256,
+          maxZoom: widget.maxZoom,
           urlTemplate: pseudoUrl,
           tileDisplay: widget.tileDisplay,
           tileProvider: HeatMapTilesProvider(
