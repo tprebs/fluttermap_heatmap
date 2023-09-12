@@ -20,3 +20,6 @@
 
 [0.0.4+2] - 2023/08/02
 * add tileDisplay to override default tile provider behaviour
+
+[0.0.5] - 2023/09/12
+* adds maxZoom param to override TileLayer's default
