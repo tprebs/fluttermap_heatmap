@@ -1,8 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
+// import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -18,13 +20,13 @@ class HeatMapTilesProvider extends TileProvider {
       {required this.dataSource, required this.heatMapOptions});
 
   @override
-  ImageProvider getImage(TileCoordinates coords, TileLayer options) {
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
     var tileSize = options.tileSize;
 
     // disable zoom level 0 for now. ned to refactor _filterData
     List<DataPoint> filteredData =
-        coords.z != 0 ? _filterData(coords, options) : [];
-    var scale = coords.z / 22 * 1.22;
+        coordinates.z != 0 ? _filterData(coordinates, options) : [];
+    var scale = coordinates.z / 22 * 1.22;
     final radius = heatMapOptions.radius * scale;
     var imageHMOptions = HeatMapOptions(
       radius: radius,
@@ -63,8 +65,10 @@ class HeatMapTilesProvider extends TileProvider {
 
     var localMin = 0.0;
     var localMax = 0.0;
-    CustomPoint tileOffset =
-        CustomPoint(options.tileSize * coords.x, options.tileSize * coords.y);
+    // CustomPoint tileOffset =
+    // CustomPoint(options.tileSize * coords.x, options.tileSize * coords.y);
+    Point<double> tileOffset =
+        Point(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final point in points) {
       if (bounds.contains(point.latLng)) {
         var pixel =
@@ -147,7 +151,7 @@ class HeatMapImage extends ImageProvider<HeatMapImage> {
   Future<ui.Codec> _generate() async {
     var bytes = await generator.generate();
     var buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
-    return PaintingBinding.instance.instantiateImageCodecFromBuffer(buffer);
+    return PaintingBinding.instance.instantiateImageCodecWithSize(buffer);
   }
 
   @override

@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+import 'package:flutter_map/flutter_map.dart';
+
 import 'latlong.dart';
 
-import 'package:flutter_map/plugin_api.dart';
+// import 'package:flutter_map/plugin_api.dart';
 
 abstract class HeatMapDataSource {
   /// provides data for the given bounds and zoom level
@@ -89,8 +91,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
 
       final k = alt * v;
 
-      grid[y] = grid[y]
-        ..length = (size.y / cellSize).ceil() + 2;
+      grid[y] = grid[y]..length = (size.y / cellSize).ceil() + 2;
       var cell = grid[y][x];
 
       if (cell == null) {
