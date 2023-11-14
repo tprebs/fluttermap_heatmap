@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 
 import 'latlong.dart';
 
-// import 'package:flutter_map/plugin_api.dart';
 
 abstract class HeatMapDataSource {
   /// provides data for the given bounds and zoom level

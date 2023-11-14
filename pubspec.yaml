@@ -4,30 +4,13 @@ repository: https://github.com/tprebs/fluttermap_heatmap
 version: 0.0.5
 
 environment:
-  # sdk: ">=2.17.0 <4.0.0"
   sdk: '>=3.1.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  # flutter_map: ^4.0.0
   flutter_map: ^6.0.0
-  # latlong2: ^0.8.1
   latlong2: ^0.9.0
 
 dev_dependencies:
-  # flutter_lints: ^1.0.4
   flutter_lints: ^2.0.3
-
-
-# environment:
-#   sdk: '>=3.1.0 <4.0.0'
-
-# dependencies:
-#   flutter:
-#     sdk: flutter
-#   flutter_map: ^6.0.0
-#   latlong2: ^0.9.0
-
-# dev_dependencies:
-#   flutter_lints: ^2.0.3

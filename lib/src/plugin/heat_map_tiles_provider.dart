@@ -65,8 +65,6 @@ class HeatMapTilesProvider extends TileProvider {
 
     var localMin = 0.0;
     var localMax = 0.0;
-    // CustomPoint tileOffset =
-    // CustomPoint(options.tileSize * coords.x, options.tileSize * coords.y);
     Point<double> tileOffset =
         Point(options.tileSize * coords.x, options.tileSize * coords.y);
     for (final point in points) {
