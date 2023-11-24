@@ -23,3 +23,6 @@
 
 [0.0.5] - 2023/09/12
 * adds maxZoom param to override TileLayer's default
+
+[0.0.6] - 2023/11/24
+* support FlutterMap 6
