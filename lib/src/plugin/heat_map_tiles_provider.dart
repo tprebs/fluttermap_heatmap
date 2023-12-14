@@ -141,7 +141,7 @@ class HeatMapImage extends ImageProvider<HeatMapImage> {
       : generator = HeatMap(heatmapOptions, size, size, data);
 
   @override
-  ImageStreamCompleter load(HeatMapImage key, decode) {
+  ImageStreamCompleter loadImage(HeatMapImage key, decode) {
     return MultiFrameImageStreamCompleter(codec: _generate(), scale: 1);
   }
 
