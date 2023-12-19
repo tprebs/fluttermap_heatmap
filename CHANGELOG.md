@@ -26,3 +26,6 @@
 
 [0.0.6] - 2023/11/24
 * support FlutterMap 6
+
+[0.0.7] - 2023/12/19
+* HeatMapImage - replace deprecated ImageProvider.load with ImageProvider.loadImage 
