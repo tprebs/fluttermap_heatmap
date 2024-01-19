@@ -83,11 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final map = new FlutterMap(
-      options: new MapOptions(center: new LatLng(57.8827, -6.0400), zoom: 8.0),
+      options: new MapOptions(
+          initialCenter: new LatLng(57.8827, -6.0400), initialZoom: 8.0),
       children: [
         TileLayer(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c']),
+            urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
         if (data.isNotEmpty)
           HeatMapLayer(
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
