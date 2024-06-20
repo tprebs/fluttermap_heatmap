@@ -84,7 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final map = new FlutterMap(
       options: new MapOptions(
-          initialCenter: new LatLng(57.8827, -6.0400), initialZoom: 8.0),
+        backgroundColor: Colors.transparent,
+        initialCenter: new LatLng(57.8827, -6.0400),
+        initialZoom: 8.0,
+      ),
       children: [
         TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
