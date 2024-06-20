@@ -23,8 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.5
-  flutter_map: ^6.0.0
+  cupertino_icons: ^1.0.8
+  flutter_map: ^7.0.1
   flutter_map_heatmap:
     path: ..
 
