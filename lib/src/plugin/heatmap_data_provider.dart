@@ -1,8 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:flutter_map/flutter_map.dart';
 
 import 'latlong.dart';
-
 
 abstract class HeatMapDataSource {
   /// provides data for the given bounds and zoom level
@@ -48,9 +48,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
       if (griddedData.isEmpty) {
         return [];
       }
-      return griddedData
-          .where((point) => bounds.contains(point.latLng))
-          .toList();
+      return griddedData.where((point) => bounds.contains(point.latLng)).toList();
     }
     return [];
   }
@@ -69,8 +67,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
 
     final gridSize = size;
 
-    List<List<WeightedLatLng?>> grid = []..length =
-        (size.y / cellSize).ceil() + 2;
+    List<List<WeightedLatLng?>> grid = []..length = (size.y / cellSize).ceil() + 2;
 
     List<WeightedLatLng> griddedData = [];
 
@@ -80,8 +77,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
     var localMax = 0.0;
     for (final point in data) {
       var globalPixel = crs.latLngToPoint(point.latLng, z);
-      var pixel =
-          CustomPoint(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
+      var pixel = math.Point(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
 
       final x = ((pixel.x) ~/ cellSize) + 2;
       final y = ((pixel.y) ~/ cellSize) + 2;

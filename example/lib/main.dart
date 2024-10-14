@@ -60,10 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<dynamic> result = jsonDecode(str);
 
     setState(() {
-      data = result
-          .map((e) => e as List<dynamic>)
-          .map((e) => WeightedLatLng(LatLng(e[0], e[1]), 1))
-          .toList();
+      data = result.map((e) => e as List<dynamic>).map((e) => WeightedLatLng(LatLng(e[0], e[1]), 1)).toList();
     });
   }
 
@@ -83,16 +80,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final map = new FlutterMap(
-      options: new MapOptions(center: new LatLng(57.8827, -6.0400), zoom: 8.0),
+      options: new MapOptions(initialCenter: new LatLng(57.8827, -6.0400), initialZoom: 8.0),
       children: [
-        TileLayer(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c']),
+        TileLayer(urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: ['a', 'b', 'c']),
         if (data.isNotEmpty)
           HeatMapLayer(
             heatMapDataSource: InMemoryHeatMapDataSource(data: data),
-            heatMapOptions: HeatMapOptions(
-                gradient: this.gradients[this.index], minOpacity: 0.1),
+            heatMapOptions: HeatMapOptions(gradient: this.gradients[this.index], minOpacity: 0.1),
             reset: _rebuildStream.stream,
           )
       ],
