@@ -9,8 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map:
-    git: https://github.com/translibrius/flutter_map_trackpadfix
+  flutter_map: ^7.0.2
   latlong2: ^0.9.0
 
 dev_dependencies:
