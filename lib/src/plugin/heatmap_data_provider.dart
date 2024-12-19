@@ -81,7 +81,7 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
     for (final point in data) {
       var globalPixel = crs.latLngToPoint(point.latLng, z);
       var pixel =
-          CustomPoint(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
+          math.Point(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
 
       final x = ((pixel.x) ~/ cellSize) + 2;
       final y = ((pixel.y) ~/ cellSize) + 2;
