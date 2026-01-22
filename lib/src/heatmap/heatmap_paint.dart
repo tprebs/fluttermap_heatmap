@@ -11,12 +11,11 @@ class HeatMapPaint extends StatefulWidget {
   final List<DataPoint> data;
 
   const HeatMapPaint(
-      {Key? key,
+      {super.key,
       required this.options,
       required this.width,
       required this.height,
-      required this.data})
-      : super(key: key);
+      required this.data});
 
   @override
   _HeatMapPaintState createState() => _HeatMapPaintState();

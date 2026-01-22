@@ -63,7 +63,7 @@ class _HeatMapLayerState extends State<HeatMapLayer> {
     return Opacity(
       opacity: widget.heatMapOptions.layerOpacity,
       child: TileLayer(
-        tileSize: 256,
+        tileDimension: 256,
         maxZoom: widget.maxZoom,
         urlTemplate: pseudoUrl,
         tileDisplay: widget.tileDisplay,

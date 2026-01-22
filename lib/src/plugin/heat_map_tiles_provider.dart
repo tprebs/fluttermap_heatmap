@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +18,7 @@ class HeatMapTilesProvider extends TileProvider {
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
-    var tileSize = options.tileSize;
+    var tileSize = options.tileDimension;
 
     // disable zoom level 0 for now. ned to refactor _filterData
     List<DataPoint> filteredData =
@@ -45,7 +43,7 @@ class HeatMapTilesProvider extends TileProvider {
     final zoom = coords.z;
     var scale = coords.z / 22 * 1.22;
     final radius = 25 * scale;
-    var size = options.tileSize;
+    var size = options.tileDimension;
     final maxZoom = options.maxZoom;
     final bounds = _bounds(coords, 1);
     final points = dataSource.getData(bounds, zoom.toDouble());
@@ -64,15 +62,15 @@ class HeatMapTilesProvider extends TileProvider {
 
     var localMin = 0.0;
     var localMax = 0.0;
-    Point<double> tileOffset =
-        Point(options.tileSize * coords.x, options.tileSize * coords.y);
+    Offset tileOffset =
+        Offset(options.tileDimension.toDouble() * coords.x, options.tileDimension.toDouble() * coords.y,);
     for (final point in points) {
       if (bounds.contains(point.latLng)) {
         var pixel =
-            crs.latLngToPoint(point.latLng, zoom.toDouble()) - tileOffset;
+            crs.latLngToOffset(point.latLng, zoom.toDouble()) - tileOffset;
 
-        final x = ((pixel.x) ~/ cellSize) + 2 + gridOffset.ceil();
-        final y = ((pixel.y) ~/ cellSize) + 2 + gridOffset.ceil();
+        final x = ((pixel.dx) ~/ cellSize) + 2 + gridOffset.ceil();
+        final y = ((pixel.dy) ~/ cellSize) + 2 + gridOffset.ceil();
 
         var alt = point.intensity;
         final k = alt * v;
@@ -82,16 +80,16 @@ class HeatMapTilesProvider extends TileProvider {
         var cell = grid[y][x];
 
         if (cell == null) {
-          grid[y][x] = DataPoint(pixel.x, pixel.y, k);
+          grid[y][x] = DataPoint(pixel.dx, pixel.dy, k);
           cell = grid[y][x];
         } else {
-          cell.merge(pixel.x, pixel.y, k);
+          cell.merge(pixel.dx, pixel.dy, k);
         }
         localMax = math.max(cell!.z, localMax);
         localMin = math.min(cell.z, localMin);
 
         if (bounds.contains(point.latLng)) {
-          filteredData.add(DataPoint(pixel.x, pixel.y, k));
+          filteredData.add(DataPoint(pixel.dx, pixel.dy, k));
         }
       }
     }
@@ -137,7 +135,7 @@ class HeatMapImage extends ImageProvider<HeatMapImage> {
   final List<DataPoint> data;
   final HeatMap generator;
 
-  HeatMapImage(this.data, HeatMapOptions heatmapOptions, double size)
+  HeatMapImage(this.data, HeatMapOptions heatmapOptions, int size)
       : generator = HeatMap(heatmapOptions, size, size, data);
 
   @override

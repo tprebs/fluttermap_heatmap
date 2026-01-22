@@ -11,8 +11,8 @@ class HeatMap {
   }
 
   final HeatMapOptions options;
-  final double width;
-  final double height;
+  final int width;
+  final int height;
   final List<DataPoint> data;
 
   late ByteData _palette;

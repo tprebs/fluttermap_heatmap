@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter_map/flutter_map.dart';
 
 import 'latlong.dart';
@@ -59,18 +60,16 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
     if (_gridCache.containsKey(z)) {
       return _gridCache[z]!;
     }
-    var leftBound = crs.latLngToPoint(bounds.northWest, z);
+    var leftBound = crs.latLngToOffset(bounds.northWest, z);
 
-    var rightBound = crs.latLngToPoint(bounds.southEast, z);
+    var rightBound = crs.latLngToOffset(bounds.southEast, z);
 
-    var size = Bounds(leftBound, rightBound).size;
+    var size = Rect.fromPoints(leftBound, rightBound).size;
 
     final cellSize = radius / 2;
 
-    final gridSize = size;
-
     List<List<WeightedLatLng?>> grid = []..length =
-        (size.y / cellSize).ceil() + 2;
+        (size.height / cellSize).ceil() + 2;
 
     List<WeightedLatLng> griddedData = [];
 
@@ -79,18 +78,14 @@ class GriddedHeatMapDataSource extends HeatMapDataSource {
     var localMin = 0.0;
     var localMax = 0.0;
     for (final point in data) {
-      var globalPixel = crs.latLngToPoint(point.latLng, z);
+      var globalPixel = crs.latLngToOffset(point.latLng, z);
       var pixel =
-          math.Point(globalPixel.x - leftBound.x, globalPixel.y - leftBound.y);
+          math.Point(globalPixel.dx - leftBound.dx, globalPixel.dy - leftBound.dy);
 
       final x = ((pixel.x) ~/ cellSize) + 2;
       final y = ((pixel.y) ~/ cellSize) + 2;
 
-      var alt = point.intensity;
-
-      final k = alt * v;
-
-      grid[y] = grid[y]..length = (size.y / cellSize).ceil() + 2;
+      grid[y] = grid[y]..length = (size.height / cellSize).ceil() + 2;
       var cell = grid[y][x];
 
       if (cell == null) {
