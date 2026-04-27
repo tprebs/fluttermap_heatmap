@@ -23,7 +23,6 @@ class HeatMap {
   Future<void> get onReady => ready.future;
 
   /// Generates a 256-color palette from the gradient options.
-  /// Now accepts Map<double, Color> (any Color, not just MaterialColor).
   _initColorPalette() async {
     final entries = options.gradient.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -34,8 +33,10 @@ class HeatMap {
     final colorGradient = LinearGradient(colors: colors, stops: stops);
     const paletteRect = Rect.fromLTRB(0, 0, 256, 1);
 
-    final shader =
-        colorGradient.createShader(paletteRect, textDirection: TextDirection.ltr);
+    final shader = colorGradient.createShader(
+      paletteRect,
+      textDirection: TextDirection.ltr,
+    );
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder, paletteRect);
@@ -58,8 +59,7 @@ class HeatMap {
         AltBaseCirclePainter(radius: radius, blurFactor: options.blurFactor);
     painter.paint(canvas, Size.fromRadius(radius));
     final picture = recorder.endRecording();
-    final image =
-        await picture.toImage(radius.round() * 2, radius.round() * 2);
+    final image = await picture.toImage(radius.round() * 2, radius.round() * 2);
 
     _baseShapes[radius] = image;
     return image;
@@ -72,27 +72,40 @@ class HeatMap {
     final painter = GrayScaleHeatMapPainter(
       baseCircle: baseCircle,
       data: data,
-      minOpacity: options.minOpacity,
+      // ── FIX: explicitly pass minOpacity so low-weight points
+      // are visible and contribute to the intensity map ──
+      minOpacity: options.minOpacity ?? 0.3,
     );
-    painter.paint(canvas, Size(width + options.radius, height + options.radius));
+    painter.paint(
+      canvas,
+      Size(width + options.radius, height + options.radius),
+    );
 
     final picture = recorder.endRecording();
     return picture.toImage(width, height);
   }
 
   Future<Uint8List> _colorize(ui.Image image) async {
-    final byteData =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     final byteCount = byteData?.lengthInBytes;
     var transparentByteCount = 0;
 
     for (var i = 0, len = byteData!.lengthInBytes; i < len; i += 4) {
+      // The alpha channel (i+3) holds the grayscale intensity from the
+      // heatmap painter. Multiply by 4 to get the palette index (0–1020).
       final j = byteData.getUint8(i + 3) * 4;
       if (j > 0) {
         byteData.setUint8(i, _palette.getUint8(j));
         byteData.setUint8(i + 1, _palette.getUint8(j + 1));
         byteData.setUint8(i + 2, _palette.getUint8(j + 2));
-        byteData.setUint8(i + 3, byteData.getUint8(i + 3) + 255);
+        // ── FIX: clamp to 255 instead of integer overflow ──
+        // Original code: setUint8(i+3, getUint8(i+3) + 255)
+        // If alpha was e.g. 128, adding 255 = 383 which wraps to ~127
+        // making the pixel nearly transparent. Clamping keeps it fully opaque.
+        byteData.setUint8(
+          i + 3,
+          (byteData.getUint8(i + 3) + 255).clamp(0, 255),
+        );
       } else {
         transparentByteCount += 4;
       }

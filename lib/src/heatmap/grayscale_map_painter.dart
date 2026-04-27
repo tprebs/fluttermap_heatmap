@@ -3,23 +3,25 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
 
-/// Painter for creating a grayscale version of the heatmap by painting the base image
-/// for each provided data point.
+/// Painter for creating a grayscale intensity map by stamping the base circle
+/// image at each data point. The resulting image is later colorized via palette.
 class GrayScaleHeatMapPainter extends CustomPainter {
-  double minOpacity = 0.3;
   final Image baseCircle;
   double? min;
   double? max;
   double buffer;
   final List<DataPoint> data;
+  final double minOpacity;
 
-  GrayScaleHeatMapPainter(
-      {required this.baseCircle,
-      this.buffer = 0,
-      required this.data,
-      minOpacity = 0.5,
-      this.min,
-      this.max});
+  GrayScaleHeatMapPainter({
+    required this.baseCircle,
+    this.buffer = 0,
+    required this.data,
+    // ── FIX: was typed as dynamic `minOpacity = 0.5`, now properly typed ──
+    this.minOpacity = 0.05,
+    this.min,
+    this.max,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -28,20 +30,21 @@ class GrayScaleHeatMapPainter extends CustomPainter {
       max = 2;
     }
 
-    final paint = Paint()..color = const Color.fromRGBO(0, 0, 0, 1);
-
-    // offsets for centering the baseCircle when painting
+    // offsets for centering the baseCircle when stamping
     final yOffset = baseCircle.height / 2;
     final xOffset = baseCircle.width / 2;
+
     for (final point in data) {
+      // ── FIX: use minOpacity field instead of hardcoded value ──
+      // Original code used a local `minOpacity = 0.5` parameter that
+      // shadowed nothing — the value was never actually configurable.
       final alpha = math.min(math.max(point.z / max!, minOpacity), 1.0);
 
-      paint.color = Color.fromRGBO(0, 0, 0, alpha);
-
       canvas.drawImage(
-          baseCircle,
-          Offset(point.x + buffer - xOffset, point.y + buffer - yOffset),
-          paint);
+        baseCircle,
+        Offset(point.x + buffer - xOffset, point.y + buffer - yOffset),
+        Paint()..color = Color.fromRGBO(0, 0, 0, alpha),
+      );
     }
   }
 
@@ -51,7 +54,7 @@ class GrayScaleHeatMapPainter extends CustomPainter {
   }
 }
 
-/// data point representing an x, y coordinate with an intensity
+/// Data point representing an x, y coordinate with an intensity value.
 class DataPoint {
   double x;
   double y;
