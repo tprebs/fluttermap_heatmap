@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'transparent.dart';
 
@@ -18,34 +18,31 @@ class HeatMap {
   late ByteData _palette;
   final Completer<void> ready = Completer<void>();
 
-  /// Base Shapes used to represent each point
   final Map<double, ui.Image> _baseShapes = {};
 
   Future<void> get onReady => ready.future;
 
-  /// generates a 256 color palette used to colorize the heatmap
+  /// Generates a 256-color palette from the gradient options.
   _initColorPalette() async {
-    List<double> stops = [];
-    List<Color> colors = [];
+    final entries = options.gradient.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
 
-    for (final entry in options.gradient.entries) {
-      colors.add(entry.value);
-      stops.add(entry.key);
-    }
+    final List<Color> colors = entries.map((e) => e.value).toList();
+    final List<double> stops = entries.map((e) => e.key).toList();
 
-    Gradient colorGradient = LinearGradient(colors: colors, stops: stops);
-    var paletteRect = const Rect.fromLTRB(0, 0, 256, 1);
+    final colorGradient = LinearGradient(colors: colors, stops: stops);
+    const paletteRect = Rect.fromLTRB(0, 0, 256, 1);
 
-    var shader = colorGradient.createShader(paletteRect,
-        textDirection: TextDirection.ltr);
+    final shader = colorGradient.createShader(
+      paletteRect,
+      textDirection: TextDirection.ltr,
+    );
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder, paletteRect);
-
-    Paint palettePaint = Paint()..shader = shader;
-    canvas.drawRect(paletteRect, palettePaint);
+    canvas.drawRect(paletteRect, Paint()..shader = shader);
     final picture = recorder.endRecording();
-    var image = await picture.toImage(256, 1);
+    final image = await picture.toImage(256, 1);
     _palette = (await image.toByteData())!;
     ready.complete();
   }
@@ -58,10 +55,9 @@ class HeatMap {
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    final baseCirclePainter =
+    final painter =
         AltBaseCirclePainter(radius: radius, blurFactor: options.blurFactor);
-    Size size = Size.fromRadius(radius);
-    baseCirclePainter.paint(canvas, size);
+    painter.paint(canvas, Size.fromRadius(radius));
     final picture = recorder.endRecording();
     final image = await picture.toImage(radius.round() * 2, radius.round() * 2);
 
@@ -69,66 +65,72 @@ class HeatMap {
     return image;
   }
 
-  _grayscaleHeatmap(ui.Image baseCircle) async {
+  Future<ui.Image> _grayscaleHeatmap(ui.Image baseCircle) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
     final painter = GrayScaleHeatMapPainter(
-        baseCircle: baseCircle, data: data, minOpacity: options.minOpacity);
+      baseCircle: baseCircle,
+      data: data,
+      // ── FIX: explicitly pass minOpacity so low-weight points
+      // are visible and contribute to the intensity map ──
+      minOpacity: options.minOpacity ?? 0.3,
+    );
     painter.paint(
-        canvas, Size(width + options.radius, height + options.radius));
+      canvas,
+      Size(width + options.radius, height + options.radius),
+    );
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(width.toInt(), height.toInt());
-    return image;
+    return picture.toImage(width, height);
   }
 
   Future<Uint8List> _colorize(ui.Image image) async {
     final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     final byteCount = byteData?.lengthInBytes;
     var transparentByteCount = 0;
-    for (var i = 0, len = byteData!.lengthInBytes, j = 0; i < len; i += 4) {
-      j = byteData.getUint8(i + 3) * 4;
-      if (i < 40) {}
+
+    for (var i = 0, len = byteData!.lengthInBytes; i < len; i += 4) {
+      // The alpha channel (i+3) holds the grayscale intensity from the
+      // heatmap painter. Multiply by 4 to get the palette index (0–1020).
+      final j = byteData.getUint8(i + 3) * 4;
       if (j > 0) {
         byteData.setUint8(i, _palette.getUint8(j));
         byteData.setUint8(i + 1, _palette.getUint8(j + 1));
         byteData.setUint8(i + 2, _palette.getUint8(j + 2));
-        byteData.setUint8(i + 3, byteData.getUint8(i + 3) + 255);
+        // ── FIX: clamp to 255 instead of integer overflow ──
+        // Original code: setUint8(i+3, getUint8(i+3) + 255)
+        // If alpha was e.g. 128, adding 255 = 383 which wraps to ~127
+        // making the pixel nearly transparent. Clamping keeps it fully opaque.
+        byteData.setUint8(
+          i + 3,
+          (byteData.getUint8(i + 3) + 255).clamp(0, 255),
+        );
       } else {
-        transparentByteCount = transparentByteCount + 4;
+        transparentByteCount += 4;
       }
-      if (i < 40) {}
     }
 
-    Uint8List bitmap;
-    // for some reason transparency is not honored when rendering on web. by checking
-    // all bytes are transparent we can render a single pixel transparent png instead
     if (transparentByteCount == byteCount) {
-      bitmap = kTransparentImage;
-    } else {
-      bitmap = Bitmap.fromHeadless(
-              image.width, image.height, byteData.buffer.asUint8List())
-          .buildHeaded();
+      return kTransparentImage;
     }
 
-    return bitmap;
+    return Bitmap.fromHeadless(
+      image.width,
+      image.height,
+      byteData.buffer.asUint8List(),
+    ).buildHeaded();
   }
 
   Future<Uint8List> generate() async {
     await ready.future;
 
-    // if there is no data then return a transparent image
     if (data.isEmpty) {
       return kTransparentImage;
     }
-    // generate shape to be used for all points on the heatmap
+
     final baseShape = await _getBaseShape();
-
     final grayscale = await _grayscaleHeatmap(baseShape);
-
-    final heatmapBytes = await _colorize(grayscale);
-
-    return heatmapBytes;
+    return _colorize(grayscale);
   }
 }

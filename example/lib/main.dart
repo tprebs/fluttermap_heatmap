@@ -37,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   StreamController<void> _rebuildStream = StreamController.broadcast();
   List<WeightedLatLng> data = [];
-  List<Map<double, MaterialColor>> gradients = [
+  List<Map<double, Color>> gradients = [
     HeatMapOptions.defaultGradient,
     {0.25: Colors.blue, 0.55: Colors.red, 0.85: Colors.pink, 1.0: Colors.purple}
   ];

@@ -4,110 +4,106 @@ import 'package:flutter_map/flutter_map.dart';
 
 import 'latlong.dart';
 
-
 abstract class HeatMapDataSource {
-  /// provides data for the given bounds and zoom level
+  /// Provides data for the given bounds and zoom level.
   List<WeightedLatLng> getData(LatLngBounds bounds, double z);
 }
 
 class InMemoryHeatMapDataSource extends HeatMapDataSource {
   final List<WeightedLatLng> data;
-  final LatLngBounds bounds;
+  late final LatLngBounds? _bounds;
 
   InMemoryHeatMapDataSource({required this.data})
-      : bounds = LatLngBounds.fromPoints(data.map((e) => e.latLng).toList());
+      : _bounds = data.isNotEmpty
+            ? LatLngBounds.fromPoints(data.map((e) => e.latLng).toList())
+            : null;
 
-  ///Filters in memory data returning the data ungridded
   @override
   List<WeightedLatLng> getData(LatLngBounds bounds, double z) {
-    if (bounds.isOverlapping(bounds)) {
-      if (data.isEmpty) {
-        return [];
-      }
-      return data.where((point) => bounds.contains(point.latLng)).toList();
-    }
-    return [];
+    if (data.isEmpty || _bounds == null) return [];
+    // Fixed: was incorrectly checking bounds.isOverlapping(bounds) (always true)
+    if (!bounds.isOverlapping(_bounds!)) return [];
+    return data.where((point) => bounds.contains(point.latLng)).toList();
   }
 }
 
 class GriddedHeatMapDataSource extends HeatMapDataSource {
   final List<WeightedLatLng> data;
-  final LatLngBounds bounds;
+  late final LatLngBounds? _bounds;
   final crs = const Epsg3857();
   final double radius;
 
   final Map<double, List<WeightedLatLng>> _gridCache = {};
 
   GriddedHeatMapDataSource({required this.data, required this.radius})
-      : bounds = LatLngBounds.fromPoints(data.map((e) => e.latLng).toList());
+      : _bounds = data.isNotEmpty
+            ? LatLngBounds.fromPoints(data.map((e) => e.latLng).toList())
+            : null;
 
-  ///Filters in memory data returning the data ungridded
   @override
   List<WeightedLatLng> getData(LatLngBounds bounds, double z) {
-    if (data.isNotEmpty && bounds.isOverlapping(bounds)) {
-      var griddedData = _getGriddedData(z);
-      if (griddedData.isEmpty) {
-        return [];
-      }
-      return griddedData
-          .where((point) => bounds.contains(point.latLng))
-          .toList();
-    }
-    return [];
+    if (data.isEmpty || _bounds == null) return [];
+    // Fixed: was incorrectly checking bounds.isOverlapping(bounds) (always true)
+    if (!bounds.isOverlapping(_bounds!)) return [];
+    final griddedData = _getGriddedData(z);
+    if (griddedData.isEmpty) return [];
+    return griddedData
+        .where((point) => bounds.contains(point.latLng))
+        .toList();
   }
 
   List<WeightedLatLng> _getGriddedData(double z) {
     if (_gridCache.containsKey(z)) {
       return _gridCache[z]!;
     }
-    var leftBound = crs.latLngToOffset(bounds.northWest, z);
 
-    var rightBound = crs.latLngToOffset(bounds.southEast, z);
-
-    var size = Rect.fromPoints(leftBound, rightBound).size;
+    final leftBound = crs.latLngToOffset(_bounds!.northWest, z);
+    final rightBound = crs.latLngToOffset(_bounds!.southEast, z);
+    final size = Rect.fromPoints(leftBound, rightBound).size;
 
     final cellSize = radius / 2;
 
-    List<List<WeightedLatLng?>> grid = []..length =
-        (size.height / cellSize).ceil() + 2;
+    List<List<WeightedLatLng?>> grid = List.filled(
+      (size.height / cellSize).ceil() + 2,
+      [],
+      growable: true,
+    );
 
-    List<WeightedLatLng> griddedData = [];
+    final List<WeightedLatLng> griddedData = [];
 
-    final v = 1 / math.pow(2, math.max(0, math.min(20 - 2, 12)));
-
-    var localMin = 0.0;
-    var localMax = 0.0;
     for (final point in data) {
-      var globalPixel = crs.latLngToOffset(point.latLng, z);
-      var pixel =
-          math.Point(globalPixel.dx - leftBound.dx, globalPixel.dy - leftBound.dy);
+      final globalPixel = crs.latLngToOffset(point.latLng, z);
+      final pixel = math.Point(
+        globalPixel.dx - leftBound.dx,
+        globalPixel.dy - leftBound.dy,
+      );
 
       final x = ((pixel.x) ~/ cellSize) + 2;
       final y = ((pixel.y) ~/ cellSize) + 2;
 
-      grid[y] = grid[y]..length = (size.height / cellSize).ceil() + 2;
-      var cell = grid[y][x];
+      if (y >= grid.length) continue;
+      grid[y] = List.from(grid[y])
+        ..length = math.max(
+          grid[y].length,
+          (size.width / cellSize).ceil() + 2,
+        );
+      if (x >= grid[y].length) continue;
 
+      var cell = grid[y][x];
       if (cell == null) {
         grid[y][x] = WeightedLatLng(point.latLng, 1);
-        cell = grid[y][x];
       } else {
         cell.merge(point.latLng.longitude, point.latLng.latitude, 1);
       }
-      localMax = math.max(cell!.intensity, localMax);
-      localMin = math.min(cell.intensity, localMin);
     }
 
-    for (var i = 0, len = grid.length; i < len; i++) {
-      for (var j = 0, len2 = grid[i].length; j < len2; j++) {
-        var cell = grid[i][j];
-        if (cell != null) {
-          griddedData.add(cell);
-        }
+    for (final row in grid) {
+      for (final cell in row) {
+        if (cell != null) griddedData.add(cell);
       }
     }
-    _gridCache[z] = griddedData;
 
+    _gridCache[z] = griddedData;
     return griddedData;
   }
 }
